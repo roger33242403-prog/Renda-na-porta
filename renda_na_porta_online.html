@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Renda na Porta</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap');
+  :root { --laranja:#E8611A;--laranja2:#f07a3a;--dark:#1a1a1a;--card:#242424;--card2:#2e2e2e;--border:#3a3a3a;--text:#f0f0f0;--muted:#888;--verde:#22c55e;--vermelho:#ef4444;--amarelo:#f59e0b; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--dark);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden;}
+  #login-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:linear-gradient(160deg,#1a1a1a 0%,#2a1a0a 100%);}
+  .login-logo{font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--laranja);letter-spacing:2px;line-height:1;text-align:center;margin-bottom:4px;}
+  .login-sub{color:var(--muted);font-size:13px;letter-spacing:3px;text-transform:uppercase;margin-bottom:40px;}
+  .login-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px 28px;width:100%;max-width:360px;}
+  .login-box h2{font-size:18px;font-weight:800;margin-bottom:24px;}
+  .btn-user{width:100%;padding:16px;border-radius:12px;border:2px solid var(--border);background:var(--card2);color:var(--text);font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:12px;transition:all 0.2s;text-align:left;display:flex;align-items:center;gap:12px;}
+  .btn-user:hover,.btn-user.selected{border-color:var(--laranja);background:#3a2010;}
+  .btn-user .icon{font-size:24px;}
+  .btn-user .role{font-size:11px;color:var(--muted);font-weight:600;display:block;}
+  .pin-area{margin-top:20px;}
+  .pin-area label{font-size:13px;color:var(--muted);margin-bottom:8px;display:block;}
+  .pin-input{width:100%;padding:14px 16px;border-radius:12px;border:2px solid var(--border);background:var(--dark);color:var(--text);font-size:16px;font-family:'Nunito',sans-serif;outline:none;transition:border-color 0.2s;letter-spacing:3px;}
+  .pin-input:focus{border-color:var(--laranja);}
+  .btn-entrar{width:100%;padding:16px;background:var(--laranja);color:white;border:none;border-radius:12px;font-size:16px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;margin-top:12px;}
+  .erro-msg{color:var(--vermelho);font-size:13px;margin-top:8px;text-align:center;}
+  #app{display:none;flex-direction:column;min-height:100vh;}
+  .topbar{background:var(--card);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+  .topbar-logo{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--laranja);}
+  .badge-user{background:var(--laranja);color:white;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;}
+  .btn-sair{background:none;border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif;}
+  .content{padding:20px;flex:1;max-width:600px;margin:0 auto;width:100%;}
+  .tabs{display:flex;gap:8px;margin-bottom:24px;overflow-x:auto;padding-bottom:4px;}
+  .tab{padding:10px 18px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all 0.2s;font-family:'Nunito',sans-serif;}
+  .tab.active{border-color:var(--laranja);background:#3a1a08;color:var(--laranja);}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px;}
+  .card-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--laranja);margin-bottom:16px;}
+  .form-row{margin-bottom:14px;}
+  .form-row label{font-size:12px;color:var(--muted);font-weight:700;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+  .form-input,.form-select{width:100%;padding:12px 14px;border-radius:10px;border:2px solid var(--border);background:var(--dark);color:var(--text);font-size:15px;font-family:'Nunito',sans-serif;outline:none;transition:border-color 0.2s;}
+  .form-input:focus,.form-select:focus{border-color:var(--laranja);}
+  .form-select option{background:var(--dark);}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .btn-primary{width:100%;padding:16px;background:var(--laranja);color:white;border:none;border-radius:12px;font-size:16px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;margin-top:4px;}
+  .btn-secondary{width:100%;padding:14px;background:transparent;color:var(--text);border:2px solid var(--border);border-radius:12px;font-size:14px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;margin-top:8px;}
+  .btn-secondary:hover{border-color:var(--laranja);color:var(--laranja);}
+  .btn-danger{padding:10px 16px;background:transparent;color:var(--vermelho);border:1px solid var(--vermelho);border-radius:8px;font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;}
+  .nota-item{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+  .nota-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+  .nota-nome{font-size:15px;font-weight:800;}
+  .nota-cidade{font-size:11px;color:var(--muted);}
+  .nota-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+  .badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;text-transform:uppercase;}
+  .badge-nota{background:#1e3a5f;color:#60a5fa;}
+  .badge-remarque{background:#3a1a5f;color:#c084fc;}
+  .badge-vendedor{background:#1a3a1a;color:#4ade80;}
+  .badge-valida{background:#1a3a1a;color:#4ade80;}
+  .badge-invalida{background:#3a1a1a;color:#f87171;}
+  .badge-quitada{background:#1a2a1a;color:#86efac;}
+  .nota-valores{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;}
+  .valor-box{background:var(--dark);border-radius:8px;padding:8px 10px;text-align:center;}
+  .valor-box .label{font-size:10px;color:var(--muted);display:block;margin-bottom:2px;}
+  .valor-box .val{font-size:14px;font-weight:800;}
+  .nota-recebimento{display:flex;gap:8px;align-items:center;margin-top:10px;}
+  .nota-recebimento input{flex:1;padding:10px 12px;border-radius:8px;border:2px solid var(--border);background:var(--dark);color:var(--text);font-size:14px;font-family:'Nunito',sans-serif;outline:none;}
+  .nota-recebimento input:focus{border-color:var(--laranja);}
+  .btn-salvar-rec{padding:10px 16px;background:var(--laranja);color:white;border:none;border-radius:8px;font-size:13px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;white-space:nowrap;}
+  .historico-pgto{margin-top:10px;border-top:1px solid var(--border);padding-top:10px;}
+  .historico-title{font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase;margin-bottom:6px;}
+  .pgto-item{display:flex;justify-content:space-between;align-items:center;background:var(--dark);border-radius:8px;padding:8px 10px;margin-bottom:6px;}
+  .pgto-info{font-size:13px;font-weight:700;}
+  .pgto-data{font-size:10px;color:var(--muted);}
+  .btn-del-pgto{background:transparent;border:none;color:var(--vermelho);font-size:16px;cursor:pointer;padding:2px 6px;line-height:1;}
+  .progress-bar-bg{background:var(--dark);border-radius:20px;height:8px;margin-top:6px;overflow:hidden;}
+  .progress-bar-fill{height:100%;border-radius:20px;}
+  .resumo-vendedor{background:var(--card2);border-radius:12px;padding:16px;margin-bottom:12px;border-left:4px solid var(--laranja);}
+  .resumo-nome{font-size:18px;font-weight:900;margin-bottom:12px;}
+  .resumo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+  .resumo-box{background:var(--dark);border-radius:10px;padding:12px;text-align:center;}
+  .resumo-box .r-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;display:block;}
+  .resumo-box .r-val{font-size:20px;font-weight:900;}
+  .comissao-destaque{background:linear-gradient(135deg,#3a1a08,#2a1a08);border:2px solid var(--laranja);border-radius:12px;padding:16px;text-align:center;margin-top:8px;}
+  .comissao-destaque .c-label{font-size:12px;color:var(--muted);margin-bottom:4px;}
+  .comissao-destaque .c-pct{font-size:16px;font-weight:800;color:var(--amarelo);}
+  .comissao-destaque .c-val{font-size:32px;font-weight:900;color:var(--laranja);font-family:'Bebas Neue',sans-serif;}
+  .encerrar-box{background:linear-gradient(135deg,#1a0a00,#2a1000);border:2px solid var(--laranja);border-radius:16px;padding:24px;text-align:center;margin-bottom:20px;}
+  .encerrar-box h3{font-size:20px;font-weight:900;margin-bottom:8px;}
+  .encerrar-box p{font-size:13px;color:var(--muted);margin-bottom:20px;}
+  .btn-encerrar{padding:16px 32px;background:var(--laranja);color:white;border:none;border-radius:12px;font-size:16px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;}
+  .remarque-pendente{background:#1a0a2a;border:1px solid #6b21a8;border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+  .rp-info .rp-nome{font-size:14px;font-weight:800;}
+  .rp-info .rp-det{font-size:11px;color:var(--muted);}
+  .rp-val{font-size:16px;font-weight:900;color:#c084fc;}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:400px;}
+  .modal h3{font-size:18px;font-weight:900;margin-bottom:16px;}
+  .rota-selector{display:flex;gap:8px;margin-bottom:20px;}
+  .btn-rota{flex:1;padding:12px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--muted);font-size:13px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;transition:all 0.2s;}
+  .btn-rota.active{border-color:var(--laranja);background:#3a1a08;color:var(--laranja);}
+  .empty-state{text-align:center;padding:40px 20px;color:var(--muted);}
+  .empty-state .icon{font-size:48px;margin-bottom:12px;}
+  .divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+  .success-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--verde);color:white;padding:12px 24px;border-radius:12px;font-weight:800;font-size:14px;z-index:300;display:none;white-space:nowrap;}
+  .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--verde);display:inline-block;margin-left:6px;}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-logo">Renda na Porta</div>
+  <div class="login-sub">Tocantins • Gestão de Viagens</div>
+  <div class="login-box">
+    <h2>Quem está acessando?</h2>
+    <button class="btn-user" onclick="selecionarUsuario('admin',this)">
+      <span class="icon">👑</span>
+      <div><span>Roger (Admin)</span><span class="role">Acesso completo</span></div>
+    </button>
+    <button class="btn-user" onclick="selecionarUsuario('dayvid',this)">
+      <span class="icon">👤</span>
+      <div><span>Dayvid</span><span class="role">Apenas lançar recebimentos</span></div>
+    </button>
+    <div class="pin-area">
+      <label>Senha de acesso</label>
+      <input class="pin-input" type="password" id="senha-input" placeholder="••••••" onkeydown="if(event.key==='Enter')entrar()">
+      <button class="btn-entrar" onclick="entrar()">ENTRAR</button>
+      <div class="erro-msg" id="erro-login"></div>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;">
+      <div class="topbar-logo">Renda na Porta</div>
+      <span class="sync-dot" id="sync-dot" title="Sincronizado"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="badge-user" id="badge-usuario"></div>
+      <button class="btn-sair" onclick="sair()">Sair</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="rota-selector" id="rota-selector">
+      <button class="btn-rota active" onclick="setRota('gurupi',this)">🗺️ Gurupi/Palmas</button>
+      <button class="btn-rota" onclick="setRota('araguaina',this)">🗺️ Araguaína</button>
+    </div>
+
+    <div class="tabs" id="tabs-admin">
+      <button class="tab active" onclick="setTab('notas',this)">📋 Notas</button>
+      <button class="tab" onclick="setTab('nova',this)">➕ Lançar</button>
+      <button class="tab" onclick="setTab('resumo',this)">📊 Resumo</button>
+      <button class="tab" onclick="setTab('remarques',this)">🔄 Remarques</button>
+      <button class="tab" onclick="setTab('encerrar',this)">🏁 Encerrar</button>
+    </div>
+    <div class="tabs" id="tabs-dayvid" style="display:none;">
+      <button class="tab active" onclick="setTab('notas',this)">📋 Minhas Notas</button>
+    </div>
+
+    <div id="tab-notas"><div class="empty-state"><div class="icon">⏳</div><p>Conectando...</p></div></div>
+
+    <div id="tab-nova" style="display:none;">
+      <div class="card">
+        <div class="card-title">➕ Lançar Nota / Remarque</div>
+        <div class="form-row"><label>Tipo</label>
+          <select class="form-select" id="tipo-lancamento"><option value="nota">📄 Nota</option><option value="remarque">🔄 Remarque</option></select>
+        </div>
+        <div class="form-row"><label>Vendedor</label>
+          <select class="form-select" id="vendedor-select"><option value="Dayvid">Dayvid</option><option value="Renato">Renato</option></select>
+        </div>
+        <div class="form-row"><label>Cidade</label><select class="form-select" id="cidade-select"></select></div>
+        <div class="form-row"><label>Nome da Cliente</label><input class="form-input" id="nome-cliente" type="text" placeholder="Nome completo"></div>
+        <div class="form-grid">
+          <div class="form-row"><label>CPF</label><input class="form-input" id="cpf-cliente" type="text" placeholder="000.000.000-00"></div>
+          <div class="form-row"><label>Telefone</label><input class="form-input" id="tel-cliente" type="text" placeholder="(00) 00000-0000"></div>
+        </div>
+        <div class="form-row"><label>Valor da Nota (R$)</label><input class="form-input" id="valor-nota" type="number" placeholder="0.00" step="0.01"></div>
+        <div class="form-row"><label>Valor Recebido Inicial (R$) — opcional</label><input class="form-input" id="valor-recebido-novo" type="number" placeholder="0.00" step="0.01"></div>
+        <div class="form-row"><label>Observação</label><input class="form-input" id="obs-nota" type="text" placeholder="Opcional"></div>
+        <button class="btn-primary" onclick="lancarNota()">💾 SALVAR LANÇAMENTO</button>
+      </div>
+    </div>
+
+    <div id="tab-resumo" style="display:none;"><div id="resumo-conteudo"></div></div>
+
+    <div id="tab-remarques" style="display:none;">
+      <div class="card"><div class="card-title">🔄 Remarques Pendentes</div><div id="lista-remarques"></div></div>
+    </div>
+
+    <div id="tab-encerrar" style="display:none;">
+      <div class="encerrar-box">
+        <h3>🏁 Encerrar Viagem</h3>
+        <p>Calcula comissões finais e exibe remarques pendentes.</p>
+        <button class="btn-encerrar" onclick="encerrarViagem()">ENCERRAR VIAGEM</button>
+      </div>
+      <div id="resultado-encerramento"></div>
+      <div class="card" style="margin-top:16px;">
+        <div class="card-title">🗑️ Limpar Notas Quitadas</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Remove apenas notas 100% pagas. Remarques permanecem.</p>
+        <button class="btn-secondary" onclick="limparQuitadas()">Remover Notas Quitadas</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-titulo"></h3>
+    <p id="modal-texto" style="font-size:14px;color:var(--muted);margin-bottom:20px;"></p>
+    <button class="btn-primary" id="modal-btn">Confirmar</button>
+    <button class="btn-secondary" onclick="fecharModal()">Cancelar</button>
+  </div>
+</div>
+
+<div class="success-toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyDeq7MYN5I1EYxFfsxcZeAQfr4xiyrp1Jo",
+  authDomain: "renda-na-porta.firebaseapp.com",
+  databaseURL: "https://renda-na-porta-default-rtdb.firebaseio.com",
+  projectId: "renda-na-porta",
+  storageBucket: "renda-na-porta.firebasestorage.app",
+  messagingSenderId: "1010305497986",
+  appId: "1:1010305497986:web:1adf4c961d779c48bc2d9b"
+});
+const db = getDatabase(app);
+const notasRef = ref(db, 'notas');
+
+const SENHAS = { admin: 'capeta153', dayvid: 'dayvin' };
+const ROTAS = { gurupi: ['Gurupi','Palmas'], araguaina: ['Araguaína','Colinas','Guaraí','Paraíso'] };
+const REGRAS = { Dayvid: { meta:0.90, alto:0.15, baixo:0.12 }, Renato: { meta:0.80, alto:0.075, baixo:0.065 } };
+
+let usuario = null, rotaAtual = 'gurupi', tabAtual = 'notas', todasNotas = {};
+
+onValue(notasRef, snap => {
+  todasNotas = snap.val() || {};
+  document.getElementById('sync-dot').style.background = '#22c55e';
+  if (usuario) renderTab();
+}, () => { document.getElementById('sync-dot').style.background = '#ef4444'; });
+
+function getNotasRota() {
+  return Object.entries(todasNotas).map(([id,n])=>({...n,id})).filter(n=>n.rota===rotaAtual);
+}
+
+window.selecionarUsuario = (tipo, btn) => {
+  window._usuarioSel = tipo;
+  document.querySelectorAll('.btn-user').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('senha-input').focus();
+};
+
+window.entrar = () => {
+  const senha = document.getElementById('senha-input').value;
+  if (!window._usuarioSel) { document.getElementById('erro-login').textContent='Selecione um usuário'; return; }
+  if (senha === SENHAS[window._usuarioSel]) {
+    usuario = window._usuarioSel;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('badge-usuario').textContent = usuario === 'admin' ? 'Roger' : 'Dayvid';
+    document.getElementById('erro-login').textContent = '';
+    if (usuario === 'dayvid') {
+      document.getElementById('tabs-admin').style.display = 'none';
+      document.getElementById('tabs-dayvid').style.display = 'flex';
+      document.getElementById('rota-selector').style.display = 'none';
+    }
+    renderCidades(); renderTab();
+  } else { document.getElementById('erro-login').textContent = 'Senha incorreta'; }
+};
+
+window.sair = () => {
+  usuario = null; window._usuarioSel = null;
+  document.getElementById('senha-input').value = '';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.querySelectorAll('.btn-user').forEach(b=>b.classList.remove('selected'));
+};
+
+window.setRota = (rota, btn) => {
+  rotaAtual = rota;
+  document.querySelectorAll('.btn-rota').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCidades(); renderTab();
+};
+
+function renderCidades() {
+  const sel = document.getElementById('cidade-select');
+  sel.innerHTML = ROTAS[rotaAtual].map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+
+window.setTab = (tab, btn) => {
+  tabAtual = tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  ['notas','nova','resumo','remarques','encerrar'].forEach(t=>{
+    const el = document.getElementById('tab-'+t);
+    if (el) el.style.display = t===tab ? 'block' : 'none';
+  });
+  renderTab();
+};
+
+function renderTab() {
+  if (tabAtual==='notas') renderNotas();
+  if (tabAtual==='resumo') renderResumo();
+  if (tabAtual==='remarques') renderRemarques();
+}
+
+function fmt(v) { return (v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+function renderNotas() {
+  const container = document.getElementById('tab-notas');
+  let notas = usuario === 'dayvid'
+    ? Object.entries(todasNotas).map(([id,n])=>({...n,id})).filter(n=>n.vendedor==='Dayvid')
+    : getNotasRota();
+
+  if (!notas.length) { container.innerHTML=`<div class="empty-state"><div class="icon">📋</div><p>Nenhuma nota ainda</p></div>`; return; }
+
+  container.innerHTML = notas.map(n => {
+    const pct = n.valorNota > 0 ? n.valorRecebido/n.valorNota : 0;
+    const valida = pct >= 0.5;
+    const falta = Math.max(0, n.valorNota - n.valorRecebido);
+    const podeEditar = usuario === 'admin' || (usuario === 'dayvid' && n.vendedor === 'Dayvid');
+    const cor = pct>=0.9?'var(--verde)':pct>=0.5?'var(--laranja)':'var(--vermelho)';
+    return `<div class="nota-item">
+      <div class="nota-header">
+        <div><div class="nota-nome">${n.nome}</div><div class="nota-cidade">📍 ${n.cidade} • ${n.dataLancamento||''}</div></div>
+        ${usuario==='admin'?`<button class="btn-danger" onclick="excluirNota('${n.id}')">🗑️</button>`:''}
+      </div>
+      <div class="nota-badges">
+        <span class="badge ${n.tipo==='nota'?'badge-nota':'badge-remarque'}">${n.tipo==='nota'?'📄 NOTA':'🔄 REMARQUE'}</span>
+        <span class="badge badge-vendedor">${n.vendedor}</span>
+        <span class="badge ${valida?'badge-valida':'badge-invalida'}">${valida?'✅ VÁLIDA':'❌ < 50%'}</span>
+        ${n.quitada?'<span class="badge badge-quitada">✅ QUITADA</span>':''}
+      </div>
+      <div class="nota-valores">
+        <div class="valor-box"><span class="label">Valor Nota</span><span class="val" style="color:var(--laranja)">R$ ${fmt(n.valorNota)}</span></div>
+        <div class="valor-box"><span class="label">Recebido</span><span class="val" style="color:var(--verde)">R$ ${fmt(n.valorRecebido)}</span></div>
+        <div class="valor-box"><span class="label">Falta</span><span class="val" style="color:var(--amarelo)">R$ ${fmt(falta)}</span></div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px;"><span>Recebimento</span><span>${(pct*100).toFixed(1)}%</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.min(pct*100,100)}%;background:${cor}"></div></div>
+      </div>
+      ${podeEditar&&!n.quitada?`<div class="nota-recebimento">
+        <input type="number" id="rec-${n.id}" placeholder="Adicionar novo pagamento" step="0.01">
+        <button class="btn-salvar-rec" onclick="adicionarPagamento('${n.id}')">+ Add</button>
+      </div>`:''}
+      ${(n.pagamentos&&Object.keys(n.pagamentos).length>0)?`
+      <div class="historico-pgto">
+        <div class="historico-title">💰 Histórico de pagamentos</div>
+        ${Object.entries(n.pagamentos).map(([pid,p])=>`
+        <div class="pgto-item">
+          <div><div class="pgto-info" style="color:var(--verde)">+ R$ ${fmt(p.valor)}</div><div class="pgto-data">${p.data}</div></div>
+          ${podeEditar?`<button class="btn-del-pgto" onclick="excluirPagamento('${n.id}','${pid}',${p.valor})">🗑️</button>`:''}
+        </div>`).join('')}
+      </div>`:''}
+      ${n.obs?`<div style="font-size:12px;color:var(--muted);margin-top:8px;">📝 ${n.obs}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+window.adicionarPagamento = async (id) => {
+  const val = parseFloat(document.getElementById('rec-'+id).value)||0;
+  if (val <= 0) { alert('Digite um valor maior que zero.'); return; }
+  const nota = todasNotas[id];
+  const novoTotal = (nota.valorRecebido||0) + val;
+  const pgtoRef = ref(db, 'notas/'+id+'/pagamentos');
+  await push(pgtoRef, { valor: val, data: new Date().toLocaleDateString('pt-BR')+' '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) });
+  await update(ref(db,'notas/'+id), { valorRecebido: novoTotal, quitada: novoTotal >= nota.valorNota });
+  document.getElementById('rec-'+id).value = '';
+  showToast('Pagamento de R$ '+fmt(val)+' adicionado!');
+};
+
+window.excluirPagamento = (notaId, pgtoId, valor) => {
+  abrirModal('Excluir pagamento?', `Remove R$ ${fmt(valor)} do histórico e subtrai do total recebido.`, async () => {
+    const nota = todasNotas[notaId];
+    const novoTotal = Math.max(0, (nota.valorRecebido||0) - valor);
+    await remove(ref(db, 'notas/'+notaId+'/pagamentos/'+pgtoId));
+    await update(ref(db,'notas/'+notaId), { valorRecebido: novoTotal, quitada: novoTotal >= nota.valorNota });
+    fecharModal();
+    showToast('Pagamento removido!');
+  });
+};
+
+window.excluirNota = (id) => {
+  abrirModal('Excluir lançamento?','Esta ação não pode ser desfeita.', async () => {
+    await remove(ref(db,'notas/'+id));
+    fecharModal(); showToast('Nota excluída');
+  });
+};
+
+function renderResumo() {
+  const notas = getNotasRota();
+  let html = '';
+  ['Dayvid','Renato'].forEach(v => {
+    const nv = notas.filter(n=>n.vendedor===v);
+    if (!nv.length) return;
+    const totalVendido = nv.filter(n=>n.tipo==='nota').reduce((s,n)=>s+n.valorNota,0);
+    const recValido = nv.filter(n=>n.valorNota>0&&(n.valorRecebido/n.valorNota)>=0.5).reduce((s,n)=>s+n.valorRecebido,0);
+    const pct = totalVendido>0 ? recValido/totalVendido : 0;
+    const r = REGRAS[v];
+    const pctC = pct>=r.meta ? r.alto : r.baixo;
+    const metaStr = v==='Dayvid'?'90%':'80%';
+    const pctStr = v==='Dayvid'?(pct>=0.9?'15%':'12%'):(pct>=0.8?'7,5%':'6,5%');
+    html += `<div class="resumo-vendedor">
+      <div class="resumo-nome">${v}</div>
+      <div class="resumo-grid">
+        <div class="resumo-box"><span class="r-label">Total Vendido</span><span class="r-val" style="color:var(--laranja)">R$ ${fmt(totalVendido)}</span></div>
+        <div class="resumo-box"><span class="r-label">Rec. Válido</span><span class="r-val" style="color:var(--verde)">R$ ${fmt(recValido)}</span></div>
+        <div class="resumo-box"><span class="r-label">% Geral</span><span class="r-val" style="color:${pct>=r.meta?'var(--verde)':'var(--amarelo)'}">${(pct*100).toFixed(1)}%</span></div>
+        <div class="resumo-box"><span class="r-label">Meta (${metaStr})</span><span class="r-val">${pct>=r.meta?'✅':'❌'}</span></div>
+      </div>
+      <div class="comissao-destaque">
+        <div class="c-label">Comissão ${pctStr} sobre R$ ${fmt(recValido)}</div>
+        <div class="c-pct">${(pctC*100).toFixed(1)}% de comissão</div>
+        <div class="c-val">R$ ${fmt(recValido*pctC)}</div>
+      </div>
+    </div>`;
+  });
+  if (!html) html = `<div class="empty-state"><div class="icon">📊</div><p>Nenhuma nota nesta rota</p></div>`;
+  document.getElementById('resumo-conteudo').innerHTML = html;
+}
+
+function renderRemarques() {
+  const pendentes = getNotasRota().filter(n=>!n.quitada&&(n.valorNota-n.valorRecebido)>0.01);
+  const container = document.getElementById('lista-remarques');
+  if (!pendentes.length) { container.innerHTML=`<div class="empty-state"><div class="icon">🎉</div><p>Sem remarques pendentes!</p></div>`; return; }
+  container.innerHTML = pendentes.map(n=>{
+    const falta = n.valorNota - n.valorRecebido;
+    return `<div class="remarque-pendente">
+      <div class="rp-info"><div class="rp-nome">${n.nome}</div><div class="rp-det">${n.vendedor} • ${n.cidade} • ${n.tipo==='remarque'?'🔄 Remarque':'📄 Nota'}</div></div>
+      <div class="rp-val">R$ ${fmt(falta)}</div>
+    </div>`;
+  }).join('');
+}
+
+window.encerrarViagem = () => {
+  const notas = getNotasRota();
+  const pendentes = notas.filter(n=>!n.quitada&&(n.valorNota-n.valorRecebido)>0.01);
+  let html = `<div class="card"><div class="card-title">🏁 Resultado</div>`;
+  ['Dayvid','Renato'].forEach(v => {
+    const nv = notas.filter(n=>n.vendedor===v);
+    if (!nv.length) return;
+    const tv = nv.filter(n=>n.tipo==='nota').reduce((s,n)=>s+n.valorNota,0);
+    const rv = nv.filter(n=>n.valorNota>0&&(n.valorRecebido/n.valorNota)>=0.5).reduce((s,n)=>s+n.valorRecebido,0);
+    const pct = tv>0?rv/tv:0;
+    const r = REGRAS[v];
+    const pctC = pct>=r.meta?r.alto:r.baixo;
+    html += `<p style="margin-bottom:8px;"><strong>${v}:</strong> R$ ${fmt(rv)} → <span style="color:var(--laranja)">${(pctC*100).toFixed(1)}% = R$ ${fmt(rv*pctC)}</span></p>`;
+  });
+  const totalRem = pendentes.reduce((s,n)=>s+(n.valorNota-n.valorRecebido),0);
+  html += `<div class="divider"></div><p style="color:var(--amarelo);font-size:14px;"><strong>🔄 Remarque pendente:</strong> R$ ${fmt(totalRem)}</p><p style="color:var(--muted);font-size:12px;margin-top:8px;">${pendentes.length} nota(s) com saldo.</p></div>`;
+  document.getElementById('resultado-encerramento').innerHTML = html;
+  showToast('Viagem encerrada!');
+};
+
+window.limparQuitadas = () => {
+  abrirModal('Limpar notas quitadas?','Remove apenas notas 100% pagas.', async () => {
+    const quitadas = getNotasRota().filter(n=>n.quitada);
+    for (const n of quitadas) await remove(ref(db,'notas/'+n.id));
+    fecharModal(); showToast('Notas quitadas removidas!');
+  });
+};
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = '✅ '+msg; t.style.display = 'block';
+  setTimeout(()=>t.style.display='none',2500);
+}
+
+function abrirModal(titulo, texto, cb) {
+  document.getElementById('modal-titulo').textContent = titulo;
+  document.getElementById('modal-texto').textContent = texto;
+  document.getElementById('modal-overlay').classList.add('open');
+  document.getElementById('modal-btn').onclick = cb;
+}
+
+window.fecharModal = () => document.getElementById('modal-overlay').classList.remove('open');
+
+window.lancarNota = async () => {
+  const tipo = document.getElementById('tipo-lancamento').value;
+  const vendedor = document.getElementById('vendedor-select').value;
+  const cidade = document.getElementById('cidade-select').value;
+  const nome = document.getElementById('nome-cliente').value.trim();
+  const cpf = document.getElementById('cpf-cliente').value.trim();
+  const tel = document.getElementById('tel-cliente').value.trim();
+  const valorNota = parseFloat(document.getElementById('valor-nota').value)||0;
+  const valorRecebido = parseFloat(document.getElementById('valor-recebido-novo').value)||0;
+  const obs = document.getElementById('obs-nota').value.trim();
+  if (!nome||valorNota<=0) { alert('Preencha o nome e o valor da nota.'); return; }
+  await push(notasRef, { rota:rotaAtual,tipo,vendedor,cidade,nome,cpf,tel,valorNota,valorRecebido,obs,quitada:false,dataLancamento:new Date().toLocaleDateString('pt-BR') });
+  ['nome-cliente','cpf-cliente','tel-cliente','valor-nota','valor-recebido-novo','obs-nota'].forEach(id=>document.getElementById(id).value='');
+  showToast('Lançamento salvo!');
+  setTab('notas', document.querySelector('.tab'));
+};
+
+['nova','resumo','remarques','encerrar'].forEach(t=>{
+  const el = document.getElementById('tab-'+t);
+  if (el) el.style.display='none';
+});
+renderCidades();
+</script>
+</body>
+</html>
